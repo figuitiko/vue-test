@@ -25,7 +25,7 @@ export default {
   },
   data(){
     return {
-      questions:[],
+      answers:[],
       dataArray:[],
       chartData: [
         ["Questions", "Right", "Wrong"],
@@ -50,18 +50,53 @@ export default {
       })
     },
     fetch: function () {
-      this.$http.get('https://vue-test-75089.firebaseio.com/questions.json').then(response =>{
+      this.$http.get('https://vue-test-75089.firebaseio.com/answers.json').then(response =>{
       return  response.json();
 
       }).then( response =>{
-        //console.log(response);
-        // this.questions = response;
 
-        let i = 0;
-        for(const question of response ){
-         this.chartData.push([i, question.rights, question.wrongs]);
-          i++;
-        }
+        let rightByQuestion = 0;
+        let wrongByQuestion =0;
+        let arrayElments = [];
+
+       this.answers = response;
+
+        Object.keys(this.answers);
+           Object.values(this.answers);
+           let responseArray = Object.entries(this.answers);
+
+
+           for(let i=0; i < responseArray.length; i++) {
+
+             if(responseArray[i][1].right === true){
+               rightByQuestion++
+             }
+             else{
+               wrongByQuestion++
+             }
+             if(arrayElments.length ===0 ){
+               arrayElments.push([responseArray[i][1].questionId,rightByQuestion,wrongByQuestion]);
+             }
+             else {
+               for(let j =0; j < arrayElments.length; j++){
+                 if (arrayElments[j][0] === responseArray[i][1].questionId ){
+                   if(responseArray[i][1].right === true){
+                     rightByQuestion++;
+                   }else {
+                     wrongByQuestion++
+                   }
+                  arrayElments = [responseArray[i][1].questionId,rightByQuestion,wrongByQuestion];
+
+                 }
+                 else{
+                   arrayElments.push([responseArray[i][1].questionId,rightByQuestion,wrongByQuestion]);
+                 }
+
+               }
+             }
+           }
+
+        this.chartData.push(arrayElments)
 
       })
     }
